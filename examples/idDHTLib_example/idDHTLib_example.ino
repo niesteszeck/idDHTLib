@@ -25,8 +25,10 @@ void setup()
   Serial.println(IDDHTLIB_VERSION);
   Serial.println("---------------");
 }
+// This wrapper is in charge of calling 
+// mus be defined like this for the lib work
 void dhtLib_wrapper() {
-  DHTLib.dht11Callback();// Change dht11Callback() for a dht22Callback() if you have a DHT22 sensor
+  DHTLib.dht11Callback(); // Change dht11Callback() for a dht22Callback() if you have a DHT22 sensor
 }
 void loop()
 {

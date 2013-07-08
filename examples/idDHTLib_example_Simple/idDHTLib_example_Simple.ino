@@ -14,7 +14,7 @@ int idDHTLibPin = 2; //Digital pin for comunications
 int idDHTLibIntNumber = 0; //interrupt number (must be the one that use the previus defined pin (see table above)
 
 //declaration
-void dhtLib_wrapper();
+void dhtLib_wrapper(); // must be declared before the lib initialization
 
 // Lib instantiate
 idDHTLib DHTLib(idDHTLibPin,idDHTLibIntNumber,dhtLib_wrapper);
@@ -27,6 +27,8 @@ void setup()
   Serial.println(IDDHTLIB_VERSION);
   Serial.println("---------------");
 }
+// This wrapper is in charge of calling 
+// mus be defined like this for the lib work
 void dhtLib_wrapper() {
   DHTLib.dht11Callback(); // Change dht11Callback() for a dht22Callback() if you have a DHT22 sensor
 }
