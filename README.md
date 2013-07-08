@@ -3,7 +3,7 @@ idDHTLib
 
 Interrupt driven DHT11 & DHT22 library
 
-	VERSION: 	0.0.1
+	VERSION: 	0.0.2
 
 	PURPOSE: 	Interrupt driven Lib for DHT11 and DHT22 with Arduino.
 
@@ -19,6 +19,19 @@ Interrupt driven DHT11 & DHT22 library
 
 	Based on code proposed: http://forum.arduino.cc/index.php?PHPSESSID=j6n105kl2h07nbj72ac4vbh4s5&topic=175356.0
 
+	Changelog:
+	
+		v 0.0.1
+		
+			fork from idDHT11 lib
+			
+			change names to idDHTLib
+			
+			added DHT22 functionality
+		
+		v 0.0.2
+		
+			Optimizacion on shift var (pylon from Arduino Forum)
 
 This lib is a beta state 'cause I don't have a DHT22 sensor, so anyone that can try 
 it with a DHT22 sensor it will be great
