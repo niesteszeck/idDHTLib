@@ -24,6 +24,7 @@ void setup()
   Serial.print("LIB version: ");
   Serial.println(IDDHTLIB_VERSION);
   Serial.println("---------------");
+  delay(3000); // The sensor need like 2 sec to initialize, if you have some code before this that make a delay, you can eliminate this delay
 }
 // This wrapper is in charge of calling 
 // mus be defined like this for the lib work
