@@ -108,7 +108,7 @@ void idDHTLib::isrCallback(bool dht22) {
 				detachInterrupt(intNumber);
 				status = IDDHTLIB_ERROR_DELTA;
 				state = STOPPED;
-			} else if(60<delta && delta<135) { //valid in timing
+			} else if(60<delta && delta<145) { //valid in timing
 				bits[idx] <<= 1; //shift the data
 				if(delta>90) //is a one
 					bits[idx] |= 1;
