@@ -117,7 +117,7 @@ void idDHTLib::isrCallback(bool dht22) {
 						if(idx++ == 4) {      // go to next byte, if whe have got 5 bytes stop.
 							detachInterrupt(intNumber);
 							// WRITE TO RIGHT VARS 
-							uint8_t sum; 
+							sum = 0; 
 							if (dht22) {
 								hum = word(bits[0], bits[1]) * 0.1;
 								temp = (bits[2] & 0x80) ? word(bits[2]&0x7F, bits[3]) * -0.1 : word(bits[2], bits[3]) * 0.1;
@@ -205,18 +205,37 @@ double idDHTLib::getDewPointSlow() {
 
 void idDHTLib::printVars() {
   Serial.println("Printing vars:");
-  Serial.print("bist[0]: ");
-  Serial.println(bist[0],HEX);
-  Serial.print("bist[1]: ");
-  Serial.println(bist[1],HEX);
-  Serial.print("bist[2]: ");
-  Serial.println(bist[2],HEX);
-  Serial.print("bist[3]: ");
-  Serial.println(bist[3],HEX);
-  Serial.print("bist[4]: ");
-  Serial.println(bist[4],HEX);
-  Serial.print("sum: ");
+  
+  Serial.print("bist[0]: 0x");
+  Serial.print(bits[0],HEX);
+  Serial.print(" d");
+  Serial.println(bits[0],HEX);
+  
+  Serial.print("bist[1]: 0x");
+  Serial.print(bits[1],HEX);
+  Serial.print(" d");
+  Serial.println(bits[1],HEX);
+  
+  Serial.print("bist[2]: 0x");
+  Serial.print(bits[2],HEX);
+  Serial.print(" d");
+  Serial.println(bits[2],HEX);
+  
+  Serial.print("bist[3]: 0x");
+  Serial.print(bits[3],HEX);
+  Serial.print(" d");
+  Serial.println(bits[3],HEX);
+  
+  Serial.print("bist[4]: 0x");
+  Serial.print(bits[4],HEX);
+  Serial.print(" d");
+  Serial.println(bits[4],HEX);
+  
+  Serial.print("sum: 0x");
+  Serial.print(sum,HEX);
+  Serial.print(" d");
   Serial.println(sum,DEC);
+  
   Serial.print("idx: ");
   Serial.println(idx);
   Serial.print("cnt: ");
