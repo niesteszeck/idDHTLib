@@ -57,7 +57,7 @@ int idDHTLib::acquire() {
 		digitalWrite(pin, LOW);
 		delay(18);
 		digitalWrite(pin, HIGH);
-		delayMicroseconds(40);
+		delayMicroseconds(25);
 		pinMode(pin, INPUT);
 		
 		// Analize the data in an interrupt
