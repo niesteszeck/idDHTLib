@@ -51,6 +51,12 @@ void loop()
   case IDDHTLIB_ERROR_TIMEOUT: 
     Serial.println("Error\n\r\tTime out error"); 
     break;
+  case IDDHTLIB_ERROR_TIMEOUT_2: 
+    Serial.println("Error\n\r\tTime out error 2"); 
+    break;
+  case IDDHTLIB_ERROR_TIMEOUT_3: 
+    Serial.println("Error\n\r\tTime out error 3"); 
+    break;
   case IDDHTLIB_ERROR_ACQUIRING: 
     Serial.println("Error\n\r\tAcquiring"); 
     break;

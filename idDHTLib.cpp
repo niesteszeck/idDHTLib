@@ -99,7 +99,7 @@ void idDHTLib::isrCallback(bool dht22) {
 				state = DATA;
 			} else {
 				detachInterrupt(intNumber);
-				status = IDDHTLIB_ERROR_TIMEOUT;
+				status = IDDHTLIB_ERROR_TIMEOUT_2;
 				state = STOPPED;
 			}
 			break;
@@ -140,7 +140,7 @@ void idDHTLib::isrCallback(bool dht22) {
 				} else cnt--;
 			} else {
 				detachInterrupt(intNumber);
-				status = IDDHTLIB_ERROR_TIMEOUT;
+				status = IDDHTLIB_ERROR_TIMEOUT_3;
 				state = STOPPED;
 			}
 			break;
