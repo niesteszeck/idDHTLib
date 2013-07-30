@@ -69,6 +69,7 @@ public:
 	float getHumidity();
 	bool acquiring();
 	int getStatus();
+	void printVars();
 	
 private:
 	

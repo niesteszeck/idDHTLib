@@ -202,4 +202,25 @@ double idDHTLib::getDewPointSlow() {
 	double T = log(VP/0.61078);   // temp var
 	return (241.88 * T) / (17.558-T);
 }
+
+void idDHTLib::printVars() {
+  Serial.println("Printing vars:");
+  Serial.print("bist[0]: ");
+  Serial.println(bist[0],HEX);
+  Serial.print("bist[1]: ");
+  Serial.println(bist[1],HEX);
+  Serial.print("bist[2]: ");
+  Serial.println(bist[2],HEX);
+  Serial.print("bist[3]: ");
+  Serial.println(bist[3],HEX);
+  Serial.print("bist[4]: ");
+  Serial.println(bist[4],HEX);
+  Serial.print("sum: ");
+  Serial.println(sum,DEC);
+  Serial.print("idx: ");
+  Serial.println(idx);
+  Serial.print("cnt: ");
+  Serial.println(cnt, DEC);
+  Serial.println("--------------");
+}
 // EOF
