@@ -122,6 +122,7 @@ void idDHTLib::isrCallback(bool dht22) {
 								hum = word(bits[0], bits[1]) * 0.1;
 								temp = (bits[2] & 0x80) ? word(bits[2]&0x7F, bits[3]) * -0.1 : word(bits[2], bits[3]) * 0.1;
 								sum = bits[0] + bits[1] + bits[2] + bits[3];  
+								sum = sum&0xFF;
 							} else {
 								// as bits[1] and bits[3] are allways zero they are omitted in formulas.
 								hum    = bits[0]; 
