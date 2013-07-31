@@ -1,24 +1,26 @@
 /*
 	FILE: 		idDHTLib.cpp
-	VERSION: 	0.0.2
+	VERSION: 	0.0.3
 	PURPOSE: 	Interrupt driven Lib for DHT11 and DHT22 with Arduino.
 	LICENCE:	GPL v3 (http://www.gnu.org/licenses/gpl.html)
 	DATASHEET: http://www.micro4you.com/files/sensor/DHT11.pdf
 	DATASHEET: http://www.adafruit.com/datasheets/DHT22.pdf
-	
+
 	Based on idDHT11 library: https://github.com/niesteszeck/idDHT11
 	Based on DHTLib library: http://playground.arduino.cc/Main/DHTLib
 	Based on code proposed: http://forum.arduino.cc/index.php?PHPSESSID=j6n105kl2h07nbj72ac4vbh4s5&topic=175356.0
-	
+
 	Changelog:
 		v 0.0.1
 			fork from idDHT11 lib
 			change names to idDHTLib
 			added DHT22 functionality
 		v 0.0.2
-			Optimizacion on shift var (pylon from Arduino Forum)
-
-*/
+			Optimization on shift var (pylon from Arduino Forum)
+		v 0.0.3
+			Timing correction to finally work properly on DHT22
+			(Dessimat0r from Arduino forum)
+ */
 
 #include "idDHTLib.h"
 #define DEBUG_idDHTLIB
@@ -41,17 +43,17 @@ void idDHTLib::init(int pin, int intNumber, void (*callback_wrapper) ()) {
 
 int idDHTLib::acquire() {
 	if (state == STOPPED || state == ACQUIRED) {
-		
-		//set the state machine for interruptions analisis of the signal
+
+		//set the state machine for interruptions analysis of the signal
 		state = RESPONSE;
-		
+
 		// EMPTY BUFFER and vars
 		for (int i=0; i< 5; i++) bits[i] = 0;
 		cnt = 7;
 		idx = 0;
 		hum = 0;
 		temp = 0;
-	
+
 		// REQUEST SAMPLE
 		pinMode(pin, OUTPUT);
 		digitalWrite(pin, LOW);
@@ -59,11 +61,11 @@ int idDHTLib::acquire() {
 		digitalWrite(pin, HIGH);
 		delayMicroseconds(25);
 		pinMode(pin, INPUT);
-		
+
 		// Analize the data in an interrupt
 		us = micros();
 		attachInterrupt(intNumber,isrCallback_wrapper,FALLING);
-		
+
 		return IDDHTLIB_ACQUIRING;
 	} else
 		return IDDHTLIB_ERROR_ACQUIRING;
@@ -91,66 +93,66 @@ void idDHTLib::isrCallback(bool dht22) {
 		return;
 	}
 	switch(state) {
-		case RESPONSE:
-			if(delta<25){
-				us -= delta;
-				break; //do nothing, it started the response signal
-			} if(125<delta && delta<190) {
-				state = DATA;
-			} else {
-				detachInterrupt(intNumber);
-				status = IDDHTLIB_ERROR_TIMEOUT_2;
-				state = STOPPED;
-			}
-			break;
-		case DATA:
-			if(delta<10) {
-				detachInterrupt(intNumber);
-				status = IDDHTLIB_ERROR_DELTA;
-				state = STOPPED;
-			} else if(60<delta && delta<145) { //valid in timing
-				bits[idx] <<= 1; //shift the data
-				if(delta>95) //is a one
-					bits[idx] |= 1;
-				if (cnt == 0) {  // whe have fullfilled the byte, go to next
-						cnt = 7;    // restart at MSB
-						if(idx++ == 4) {      // go to next byte, if whe have got 5 bytes stop.
-							detachInterrupt(intNumber);
-							// WRITE TO RIGHT VARS 
-							sum = 0; 
-							if (dht22) {
-								hum = word(bits[0], bits[1]) * 0.1;
-								if(bits[2] & 0x80) {
-                  temp = word(bits[2]&0x7F, bits[3]) * 0.1;
-                  temp *= -1.0
-                } else
-                  temp = word(bits[2], bits[3]) * 0.1;
-								sum = bits[0] + bits[1] + bits[2] + bits[3];  
-								sum = sum&0xFF;
-							} else {
-								// as bits[1] and bits[3] are allways zero they are omitted in formulas.
-								hum    = bits[0]; 
-								temp = bits[2];
-								sum = bits[0] + bits[2];
-							}  
-							if (bits[4] != sum) {
-								status = IDDHTLIB_ERROR_CHECKSUM;
-								state = STOPPED;
-							} else {
-								status = IDDHTLIB_OK;
-								state = ACQUIRED;
-							}
-							break;
-						}
-				} else cnt--;
-			} else {
-				detachInterrupt(intNumber);
-				status = IDDHTLIB_ERROR_TIMEOUT_3;
-				state = STOPPED;
-			}
-			break;
-		default:
-			break;
+	case RESPONSE:
+		if(delta<25){
+			us -= delta;
+			break; //do nothing, it started the response signal
+		} if(125<delta && delta<190) {
+			state = DATA;
+		} else {
+			detachInterrupt(intNumber);
+			status = IDDHTLIB_ERROR_TIMEOUT_2;
+			state = STOPPED;
+		}
+		break;
+	case DATA:
+		if(60<delta && delta<145) { //valid in timing
+			bits[idx] <<= 1; //shift the data
+			if(delta>100) //is a one
+				bits[idx] |= 1;
+			if (cnt == 0) {  // when have fulfilled the byte, go to next
+				cnt = 7;    // restart at MSB
+				if(idx++ == 4) { // go to next byte, when we have 5 bytes, stop.
+					detachInterrupt(intNumber);
+					// WRITE TO RIGHT VARS
+					sum = 0;
+					if (dht22) {
+						hum = word(bits[0], bits[1]) * 0.1;
+						if(bits[2] & 0x80) {
+							temp = word(bits[2]&0x7F, bits[3]) * 0.1;
+							temp *= -1.0;
+						} else
+							temp = word(bits[2], bits[3]) * 0.1;
+						sum = bits[0] + bits[1] + bits[2] + bits[3];
+						sum = sum&0xFF;
+					} else {
+						// as bits[1] and bits[3] are always zero they are omitted in formulas.
+						hum  = bits[0];
+						temp = bits[2];
+						sum  = bits[0] + bits[2];
+					}
+					if (bits[4] != sum) {
+						status = IDDHTLIB_ERROR_CHECKSUM;
+						state = STOPPED;
+					} else {
+						status = IDDHTLIB_OK;
+						state = ACQUIRED;
+					}
+					break;
+				}
+			} else cnt--;
+		} else if(delta<10) {
+			detachInterrupt(intNumber);
+			status = IDDHTLIB_ERROR_DELTA;
+			state = STOPPED;
+		} else {
+			detachInterrupt(intNumber);
+			status = IDDHTLIB_ERROR_TIMEOUT_3;
+			state = STOPPED;
+		}
+		break;
+	default:
+		break;
 	}
 }
 bool idDHTLib::acquiring() {
@@ -191,7 +193,7 @@ double idDHTLib::getDewPoint() {
 	double temp_ = (a * (double) temp) / (b + (double) temp) + log( (double) hum/100);
 	double Td = (b * temp_) / (a - temp_);
 	return Td;
-	
+
 }
 // dewPoint function NOAA
 // reference: http://wahiduddin.net/calc/density_algorithms.htm 
@@ -209,42 +211,43 @@ double idDHTLib::getDewPointSlow() {
 }
 
 void idDHTLib::printVars() {
-  Serial.println("Printing vars:");
-  
-  Serial.print("bist[0]: 0x");
-  Serial.print(bits[0],HEX);
-  Serial.print(" d");
-  Serial.println(bits[0],HEX);
-  
-  Serial.print("bist[1]: 0x");
-  Serial.print(bits[1],HEX);
-  Serial.print(" d");
-  Serial.println(bits[1],HEX);
-  
-  Serial.print("bist[2]: 0x");
-  Serial.print(bits[2],HEX);
-  Serial.print(" d");
-  Serial.println(bits[2],HEX);
-  
-  Serial.print("bist[3]: 0x");
-  Serial.print(bits[3],HEX);
-  Serial.print(" d");
-  Serial.println(bits[3],HEX);
-  
-  Serial.print("bist[4]: 0x");
-  Serial.print(bits[4],HEX);
-  Serial.print(" d");
-  Serial.println(bits[4],HEX);
-  
-  Serial.print("sum: 0x");
-  Serial.print(sum,HEX);
-  Serial.print(" d");
-  Serial.println(sum,DEC);
-  
-  Serial.print("idx: ");
-  Serial.println(idx);
-  Serial.print("cnt: ");
-  Serial.println(cnt, DEC);
-  Serial.println("--------------");
+	Serial.println("----------------------------");
+	Serial.println("idDHTLib: Printing vars:");
+
+	Serial.print("bits[0]: 0x");
+	Serial.print(bits[0],HEX);
+	Serial.print(" d");
+	Serial.println(bits[0],DEC);
+
+	Serial.print("bits[1]: 0x");
+	Serial.print(bits[1],HEX);
+	Serial.print(" d");
+	Serial.println(bits[1],DEC);
+
+	Serial.print("bits[2]: 0x");
+	Serial.print(bits[2],HEX);
+	Serial.print(" d");
+	Serial.println(bits[2],DEC);
+
+	Serial.print("bits[3]: 0x");
+	Serial.print(bits[3],HEX);
+	Serial.print(" d");
+	Serial.println(bits[3],DEC);
+
+	Serial.print("bits[4]: 0x");
+	Serial.print(bits[4],HEX);
+	Serial.print(" d");
+	Serial.println(bits[4],DEC);
+
+	Serial.print("sum: 0x");
+	Serial.print(sum,HEX);
+	Serial.print(" d");
+	Serial.println(sum,DEC);
+
+	Serial.print("idx: ");
+	Serial.println(idx,DEC);
+	Serial.print("cnt: ");
+	Serial.println(cnt,DEC);
+	Serial.println("----------------------------");
 }
 // EOF
