@@ -110,7 +110,7 @@ void idDHTLib::isrCallback(bool dht22) {
 				state = STOPPED;
 			} else if(60<delta && delta<145) { //valid in timing
 				bits[idx] <<= 1; //shift the data
-				if(delta>90) //is a one
+				if(delta>95) //is a one
 					bits[idx] |= 1;
 				if (cnt == 0) {  // whe have fullfilled the byte, go to next
 						cnt = 7;    // restart at MSB
