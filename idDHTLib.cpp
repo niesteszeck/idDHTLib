@@ -104,11 +104,7 @@ void idDHTLib::isrCallback(bool dht22) {
 			}
 			break;
 		case DATA:
-			if(delta<10) {
-				detachInterrupt(intNumber);
-				status = IDDHTLIB_ERROR_DELTA;
-				state = STOPPED;
-			} else if(60<delta && delta<135) { //valid in timing
+			if(60<delta && delta<135) { //valid in timing
 				bits[idx] <<= 1; //shift the data
 				if(delta>90) //is a one
 					bits[idx] |= 1;
@@ -138,6 +134,10 @@ void idDHTLib::isrCallback(bool dht22) {
 							break;
 						}
 				} else cnt--;
+			} else if(delta<10) {
+				detachInterrupt(intNumber);
+				status = IDDHTLIB_ERROR_DELTA;
+				state = STOPPED;
 			} else {
 				detachInterrupt(intNumber);
 				status = IDDHTLIB_ERROR_TIMEOUT;
