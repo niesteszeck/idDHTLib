@@ -122,14 +122,14 @@ void idDHTLib::isrCallback(bool dht22) {
 									-word(bits[2] & 0x7F, bits[3]) :
 									word(bits[2], bits[3]))
 								* 0.1;
-								sum = (bits[0] + bits[1] + bits[2] + bits[3]) & 0xFF;
+								sum = bits[0] + bits[1] + bits[2] + bits[3];
 							} else {
 								hum    = bits[0]; 
 								// as bits[1] and bits[3] are always zero they are omitted in formulas.
 								temp = bits[2];
 								sum = bits[0] + bits[2];
 							}  
-							if (bits[4] != sum) {
+							if (bits[4] != (sum&0xFF)) {
 								status = IDDHTLIB_ERROR_CHECKSUM;
 								state = STOPPED;
 							} else {
