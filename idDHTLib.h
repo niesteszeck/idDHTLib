@@ -1,6 +1,6 @@
 /*
-	FILE: 		idDHTlib.h
-	VERSION: 	0.0.2
+	FILE: 		idDHTLib.h
+	VERSION: 	0.0.3
 	PURPOSE: 	Interrupt driven Lib for DHT11 and DHT22 with Arduino.
 	LICENCE:	GPL v3 (http://www.gnu.org/licenses/gpl.html)
 	DATASHEET: http://www.micro4you.com/files/sensor/DHT11.pdf
@@ -16,10 +16,11 @@
 			change names to idDHTLib
 			added DHT22 functionality
 		v 0.0.2
-			Optimizacion on shift var (pylon from Arduino Forum)
-
-*/
-
+			Optimization on shift var (pylon from Arduino Forum)
+		v 0.0.3
+			Timing correction to finally work properly on DHT22
+			(Dessimat0r from Arduino forum)
+ */
 
 #ifndef idDHTLib_H__
 #define idDHTLib_H__
@@ -75,9 +76,10 @@ private:
 	enum states{RESPONSE=0,DATA=1,ACQUIRED=2,STOPPED=3,ACQUIRING=4};
 	volatile states state;
 	volatile int status;
-	volatile byte bits[5];
+	volatile uint8_t bits[5];
 	volatile byte cnt;
 	volatile byte idx;
+	volatile int sum;
 	volatile int us;
 	int intNumber;
 	int pin;
