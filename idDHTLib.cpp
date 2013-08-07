@@ -115,7 +115,7 @@ void idDHTLib::isrCallback(bool dht22) {
 						if(++idx == 5) { // go to next byte; when we have got 5 bytes, stop.
 							detachInterrupt(intNumber);
 							// WRITE TO RIGHT VARS 
-							sum = 0;
+							uint8_t sum;
 							if (dht22) {
 								hum = word(bits[0], bits[1]) * 0.1;
 								temp = (bits[2] & 0x80 ?
