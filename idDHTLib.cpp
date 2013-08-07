@@ -1,6 +1,6 @@
 /*
 	FILE: 		idDHTLib.cpp
-	VERSION: 	0.0.2
+	VERSION: 	0.0.3
 	PURPOSE: 	Interrupt driven Lib for DHT11 and DHT22 with Arduino.
 	LICENCE:	GPL v3 (http://www.gnu.org/licenses/gpl.html)
 	DATASHEET: http://www.micro4you.com/files/sensor/DHT11.pdf
@@ -16,9 +16,11 @@
 			change names to idDHTLib
 			added DHT22 functionality
 		v 0.0.2
-			Optimizacion on shift var (pylon from Arduino Forum)
-
-*/
+			Optimization on shift var (pylon from Arduino Forum)
+		v 0.0.3
+			Timing correction to finally work properly on DHT22
+			(Dessimat0r from Arduino forum)
+ */
 
 #include "idDHTLib.h"
 #define DEBUG_idDHTLIB
@@ -106,21 +108,24 @@ void idDHTLib::isrCallback(bool dht22) {
 		case DATA:
 			if(60<delta && delta<145) { //valid in timing
 				bits[idx] <<= 1; //shift the data
-				if(delta>90) //is a one
+				if(delta>100) //is a one
 					bits[idx] |= 1;
-				if (cnt == 0) {  // whe have fullfilled the byte, go to next
+				if (cnt == 0) {  // when we have fulfilled the byte, go to the next
 						cnt = 7;    // restart at MSB
-						if(idx++ == 4) {      // go to next byte, if whe have got 5 bytes stop.
+						if(++idx == 5) { // go to next byte; when we have got 5 bytes, stop.
 							detachInterrupt(intNumber);
 							// WRITE TO RIGHT VARS 
-							uint8_t sum; 
+							sum = 0;
 							if (dht22) {
 								hum = word(bits[0], bits[1]) * 0.1;
-								temp = (bits[2] & 0x80) ? word(bits[2]&0x7F, bits[3]) * -0.1 : word(bits[2], bits[3]) * 0.1;
-								sum = bits[0] + bits[1] + bits[2] + bits[3];  
+								temp = bits[2] & 0x80 ?
+									-word(bits[2] & 0x7F, bits[3]) :
+									word(bits[2], bits[3])
+								* 0.1;
+								sum = (bits[0] + bits[1] + bits[2] + bits[3]) & 0xFF;
 							} else {
-								// as bits[1] and bits[3] are allways zero they are omitted in formulas.
 								hum    = bits[0]; 
+								// as bits[1] and bits[3] are always zero they are omitted in formulas.
 								temp = bits[2];
 								sum = bits[0] + bits[2];
 							}  
