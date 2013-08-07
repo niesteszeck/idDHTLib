@@ -76,10 +76,9 @@ private:
 	enum states{RESPONSE=0,DATA=1,ACQUIRED=2,STOPPED=3,ACQUIRING=4};
 	volatile states state;
 	volatile int status;
-	volatile uint8_t bits[5];
+	volatile byte bits[5];
 	volatile byte cnt;
 	volatile byte idx;
-	volatile int sum;
 	volatile int us;
 	int intNumber;
 	int pin;
