@@ -31,7 +31,7 @@
 #include <WProgram.h>
 #endif
 
-#define IDDHTLIB_VERSION "0.0.2"
+#define IDDHTLIB_VERSION "0.0.3"
 
 // state codes
 #define IDDHTLIB_OK			0
