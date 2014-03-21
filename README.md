@@ -37,4 +37,3 @@ Interrupt driven DHT11 & DHT22 library
 
 			Timing correction to finally work properly on DHT22 (Dessimat0r from Arduino forum)
 
-This lib is a beta state 'cause I don't have a DHT22 sensor, so if anyone can try it with a DHT22 sensor it will be great
