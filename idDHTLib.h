@@ -31,7 +31,7 @@
 #include <WProgram.h>
 #endif
 
-#define IDDHTLIB_VERSION "0.0.3"
+#define IDDHTLIB_VERSION "0.0.4"
 
 // state codes
 #define IDDHTLIB_OK			0
@@ -69,9 +69,14 @@ public:
 	bool acquiring();
 	int getStatus();
 	
+	int getRawTemperature();
+	int getRawHumidity();
+	
 private:
 	
 	void (*isrCallback_wrapper)(void);
+	
+	bool isDHT22;
 	
 	enum states{RESPONSE=0,DATA=1,ACQUIRED=2,STOPPED=3,ACQUIRING=4};
 	volatile states state;
@@ -82,8 +87,8 @@ private:
 	volatile int us;
 	int intNumber;
 	int pin;
-	volatile float hum;
-	volatile float temp;
+	volatile int hum;
+	volatile int temp;
 	void isrCallback(bool dht22);
 };
 #endif // idDHTLib_H__

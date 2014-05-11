@@ -77,9 +77,11 @@ int idDHTLib::acquireAndWait() {
 	return getStatus();
 }
 void idDHTLib::dht11Callback() {
+	isDHT22 = false;
 	isrCallback(false);
 }
 void idDHTLib::dht22Callback() {
+	isDHT22 = true;
 	isrCallback(true);
 }
 void idDHTLib::isrCallback(bool dht22) {
@@ -117,11 +119,10 @@ void idDHTLib::isrCallback(bool dht22) {
 							// WRITE TO RIGHT VARS 
 							uint8_t sum;
 							if (dht22) {
-								hum = word(bits[0], bits[1]) * 0.1;
+								hum = word(bits[0], bits[1]);
 								temp = (bits[2] & 0x80 ?
 									-word(bits[2] & 0x7F, bits[3]) :
-									word(bits[2], bits[3]))
-								* 0.1;
+									word(bits[2], bits[3]));
 								sum = bits[0] + bits[1] + bits[2] + bits[3];
 							} else {
 								hum    = bits[0]; 
@@ -161,24 +162,55 @@ bool idDHTLib::acquiring() {
 int idDHTLib::getStatus() {
 	return status;
 }
-float idDHTLib::getCelsius() {
-	IDDHTLIB_CHECK_STATE;
-	return temp;
-}
 
-float idDHTLib::getHumidity() {
+int idDHTLib::getRawHumidity(){
 	IDDHTLIB_CHECK_STATE;
 	return hum;
 }
 
+int idDHTLib::getRawTemperature(){
+	IDDHTLIB_CHECK_STATE;
+	return temp;
+}
+
+float idDHTLib::getCelsius() {
+	IDDHTLIB_CHECK_STATE;
+	if ( isDHT22 ){
+	  return temp * 0.1;
+	} else {
+	  return (float) temp;
+	}
+}
+
+float idDHTLib::getHumidity() {
+	IDDHTLIB_CHECK_STATE;
+	if ( isDHT22 ){
+	  return hum * 0.1;
+	} else {
+	  return (float) hum;
+	}
+}
+
 float idDHTLib::getFahrenheit() {
 	IDDHTLIB_CHECK_STATE;
-	return temp * 1.8 + 32;
+	float tempF;
+	if ( isDHT22 ){
+	  tempF = (float) temp * 0.1;
+	} else {
+	  tempF = (float) temp;
+	}
+	return tempF * 1.8 + 32;
 }
 
 float idDHTLib::getKelvin() {
 	IDDHTLIB_CHECK_STATE;
-	return temp + 273.15;
+	float tempF;
+	if ( isDHT22 ){
+	  tempF = (float) temp * 0.1;
+	} else {
+	  tempF = (float) temp;
+	}
+	return tempF + 273.15;
 }
 
 // delta max = 0.6544 wrt dewPoint()
@@ -188,7 +220,16 @@ double idDHTLib::getDewPoint() {
 	IDDHTLIB_CHECK_STATE;
 	double a = 17.271;
 	double b = 237.7;
-	double temp_ = (a * (double) temp) / (b + (double) temp) + log( (double) hum/100);
+	double tempFloat;
+	double humFloat;
+	if ( isDHT22 ){
+	  tempFloat = temp * 0.1;
+	  humFloat = hum * 0.1;
+	} else {
+	  tempFloat = (double) temp;
+	  humFloat = (double) hum;
+	}
+	double temp_ = (a * tempFloat) / (b +  tempFloat) + log( humFloat/100);
 	double Td = (b * temp_) / (a - temp_);
 	return Td;
 	
@@ -197,13 +238,22 @@ double idDHTLib::getDewPoint() {
 // reference: http://wahiduddin.net/calc/density_algorithms.htm 
 double idDHTLib::getDewPointSlow() {
 	IDDHTLIB_CHECK_STATE;
-	double A0= 373.15/(273.15 + (double) temp);
+	double tempFloat;
+	double humFloat;
+	if ( isDHT22 ){
+	  tempFloat = temp * 0.1;
+	  humFloat = hum * 0.1;
+	} else {
+	  tempFloat = (double) temp;
+	  humFloat = (double) hum;
+	}
+	double A0= 373.15/(273.15 + tempFloat);
 	double SUM = -7.90298 * (A0-1);
 	SUM += 5.02808 * log10(A0);
 	SUM += -1.3816e-7 * (pow(10, (11.344*(1-1/A0)))-1) ;
 	SUM += 8.1328e-3 * (pow(10,(-3.49149*(A0-1)))-1) ;
 	SUM += log10(1013.246);
-	double VP = pow(10, SUM-3) * (double) hum;
+	double VP = pow(10, SUM-3) * humFloat;
 	double T = log(VP/0.61078);   // temp var
 	return (241.88 * T) / (17.558-T);
 }
