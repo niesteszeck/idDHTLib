@@ -5,11 +5,11 @@
 	LICENCE:	GPL v3 (http://www.gnu.org/licenses/gpl.html)
 	DATASHEET: http://www.micro4you.com/files/sensor/DHT11.pdf
 	DATASHEET: http://www.adafruit.com/datasheets/DHT22.pdf
-	
+
 	Based on idDHT11 library: https://github.com/niesteszeck/idDHT11
 	Based on DHTLib library: http://playground.arduino.cc/Main/DHTLib
 	Based on code proposed: http://forum.arduino.cc/index.php?PHPSESSID=j6n105kl2h07nbj72ac4vbh4s5&topic=175356.0
-	
+
 	Changelog:
 		v 0.0.1
 			fork from idDHT11 lib
@@ -47,43 +47,43 @@
 #define IDDHTLIB_ERROR_NOTSTARTED	-5
 
 #define IDDHTLIB_CHECK_STATE		if(state == STOPPED)			\
-						return status;			\
-					else if(state != ACQUIRED)		\
-						return IDDHTLIB_ERROR_ACQUIRING;
-									
+    return status;			\
+  else if(state != ACQUIRED)		\
+    return IDDHTLIB_ERROR_ACQUIRING;
+
 class idDHTLib
 {
-public:
-	idDHTLib(int pin, int intNumber,void (*isrCallback_wrapper)());
-    	void init(int pin, int intNumber,void (*isrCallback_wrapper)());
-	void dht11Callback();
-	void dht22Callback();
-	int acquire();
-	int acquireAndWait();
-	float getCelsius();
-	float getFahrenheit();
-	float getKelvin();
-	double getDewPoint();
-	double getDewPointSlow();
-	float getHumidity();
-	bool acquiring();
-	int getStatus();
-	
-private:
-	
-	void (*isrCallback_wrapper)(void);
-	
-	enum states{RESPONSE=0,DATA=1,ACQUIRED=2,STOPPED=3,ACQUIRING=4};
-	volatile states state;
-	volatile int status;
-	volatile byte bits[5];
-	volatile byte cnt;
-	volatile byte idx;
-	volatile int us;
-	int intNumber;
-	int pin;
-	volatile float hum;
-	volatile float temp;
-	void isrCallback(bool dht22);
+  public:
+    idDHTLib(int pin, int intNumber, void (*isrCallback_wrapper)());
+    void init(int pin, int intNumber, void (*isrCallback_wrapper)());
+    void dht11Callback();
+    void dht22Callback();
+    int acquire();
+    int acquireAndWait();
+    float getCelsius();
+    float getFahrenheit();
+    float getKelvin();
+    double getDewPoint();
+    double getDewPointSlow();
+    float getHumidity();
+    bool acquiring();
+    int getStatus();
+
+  private:
+
+    void (*isrCallback_wrapper)(void);
+
+    enum states {RESPONSE = 0, DATA = 1, ACQUIRED = 2, STOPPED = 3, ACQUIRING = 4};
+    volatile states state;
+    volatile int status;
+    volatile byte bits[5];
+    volatile byte cnt;
+    volatile byte idx;
+    volatile int us;
+    int intNumber;
+    int pin;
+    volatile float hum;
+    volatile float temp;
+    void isrCallback(bool dht22);
 };
 #endif // idDHTLib_H__
