@@ -54,8 +54,8 @@
 class idDHTLib
 {
   public:
-    idDHTLib(int pin, int intNumber, void (*isrCallback_wrapper)());
-    void init(int pin, int intNumber, void (*isrCallback_wrapper)());
+    idDHTLib(int pin, void (*isrCallback_wrapper)());
+    void init(int pin, void (*isrCallback_wrapper)());
     void dht11Callback();
     void dht22Callback();
     int acquire();

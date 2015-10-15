@@ -25,12 +25,12 @@
 #include "idDHTLib.h"
 #define DEBUG_idDHTLIB
 
-idDHTLib::idDHTLib(int pin, int intNumber, void (*callback_wrapper)()) {
-  init(pin, intNumber, callback_wrapper);
+idDHTLib::idDHTLib(int pin, void (*callback_wrapper)()) {
+  init(pin, callback_wrapper);
 }
 
-void idDHTLib::init(int pin, int intNumber, void (*callback_wrapper) ()) {
-  this->intNumber = intNumber;
+void idDHTLib::init(int pin, void (*callback_wrapper) ()) {
+  this->intNumber = digitalPinToInterrupt(pin);
   this->pin = pin;
   this->isrCallback_wrapper = callback_wrapper;
   hum = 0;

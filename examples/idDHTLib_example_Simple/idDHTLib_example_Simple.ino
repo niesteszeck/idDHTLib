@@ -11,13 +11,12 @@
 #include <idDHTLib.h>
 
 int idDHTLibPin = 2; //Digital pin for comunications
-int idDHTLibIntNumber = 0; //interrupt number (must be the one that use the previus defined pin (see table above)
 
 //declaration
 void dhtLib_wrapper(); // must be declared before the lib initialization
 
 // Lib instantiate
-idDHTLib DHTLib(idDHTLibPin,idDHTLibIntNumber,dhtLib_wrapper);
+idDHTLib DHTLib(idDHTLibPin,dhtLib_wrapper);
 
 void setup()
 {
