@@ -21,8 +21,6 @@ getDewPointSlow	KEYWORD2
 getHumidity	KEYWORD2
 acquiring	KEYWORD2
 getStatus	KEYWORD2
-dht11Callback	KEYWORD2
-dht22Callback	KEYWORD2
 #######################################
 # Instances (KEYWORD2)
 #######################################

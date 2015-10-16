@@ -25,14 +25,22 @@
 #include "idDHTLib.h"
 #define DEBUG_idDHTLIB
 
-idDHTLib::idDHTLib(int pin, void (*callback_wrapper)()) {
-  init(pin, callback_wrapper);
+const pCallback idDHTLib::pCallbackArray[] = {PFUNC_CALLBACKS};
+idDHTLib * idDHTLib::objectAtInt[MAX_INTERRUPT + 1];
+
+idDHTLib::idDHTLib(int pin) {
+  init(pin, DHT11);
 }
 
-void idDHTLib::init(int pin, void (*callback_wrapper) ()) {
-  this->intNumber = digitalPinToInterrupt(pin);
+idDHTLib::idDHTLib(int pin, DHTType sensorType) {
+  init(pin, sensorType);
+}
+
+void idDHTLib::init(int pin, DHTType sensorType) {
+  intNumber = digitalPinToInterrupt(pin);
   this->pin = pin;
-  this->isrCallback_wrapper = callback_wrapper;
+  this->sensorType = sensorType;
+  objectAtInt[intNumber] = this;
   hum = 0;
   temp = 0;
   pinMode(pin, OUTPUT);
@@ -64,7 +72,7 @@ int idDHTLib::acquire() {
 
     // Analize the data in an interrupt
     us = micros();
-    attachInterrupt(intNumber, isrCallback_wrapper, FALLING);
+    attachInterrupt(intNumber, pCallbackArray[intNumber], FALLING);
 
     return IDDHTLIB_ACQUIRING;
   } else
@@ -76,13 +84,7 @@ int idDHTLib::acquireAndWait() {
     ;
   return getStatus();
 }
-void idDHTLib::dht11Callback() {
-  isrCallback(false);
-}
-void idDHTLib::dht22Callback() {
-  isrCallback(true);
-}
-void idDHTLib::isrCallback(bool dht22) {
+void idDHTLib::dhtCallback() {
   unsigned long newUs = micros();
   byte delta;
   if (newUs - us > 255) {
@@ -119,7 +121,7 @@ void idDHTLib::isrCallback(bool dht22) {
             detachInterrupt(intNumber);
             // WRITE TO RIGHT VARS
             uint8_t sum;
-            if (dht22) {
+            if (sensorType == DHT22) {
               hum = word(bits[0], bits[1]) * 0.1;
               temp = (bits[2] & 0x80 ?
                       -word(bits[2] & 0x7F, bits[3]) :

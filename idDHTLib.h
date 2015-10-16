@@ -51,13 +51,16 @@
   else if(state != ACQUIRED)		\
     return IDDHTLIB_ERROR_ACQUIRING;
 
+typedef void (*pCallback)();
+
 class idDHTLib
 {
   public:
-    idDHTLib(int pin, void (*isrCallback_wrapper)());
-    void init(int pin, void (*isrCallback_wrapper)());
-    void dht11Callback();
-    void dht22Callback();
+    enum DHTType {DHT11, DHT22};
+
+    idDHTLib(int pin);
+    idDHTLib(int pin, DHTType sensorType);
+    void init(int pin, DHTType sensorType);
     int acquire();
     int acquireAndWait();
     float getCelsius();
@@ -70,9 +73,6 @@ class idDHTLib
     int getStatus();
 
   private:
-
-    void (*isrCallback_wrapper)(void);
-
     enum states {RESPONSE = 0, DATA = 1, ACQUIRED = 2, STOPPED = 3, ACQUIRING = 4};
     volatile states state;
     volatile int status;
@@ -82,8 +82,13 @@ class idDHTLib
     volatile unsigned long us;
     int intNumber;
     int pin;
+    DHTType sensorType;
     volatile float hum;
     volatile float temp;
-    void isrCallback(bool dht22);
+    void dhtCallback();
+
+#include "idDHTLib_cb.h"
+    const static pCallback pCallbackArray[MAX_INTERRUPT + 1];
+    static idDHTLib * objectAtInt[MAX_INTERRUPT + 1];
 };
 #endif // idDHTLib_H__

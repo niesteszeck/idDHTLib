@@ -10,11 +10,8 @@
 
 int idDHTLibPin = 2; //Digital pin for comunications
 
-//declaration
-void dhtLib_wrapper(); // must be declared before the lib initialization
-
 // Lib instantiate
-idDHTLib DHTLib(idDHTLibPin,dhtLib_wrapper);
+idDHTLib DHTLib(idDHTLibPin, idDHTLib::DHT11);
 
 void setup()
 {
@@ -25,11 +22,7 @@ void setup()
   Serial.println("---------------");
   delay(3000); // The sensor need like 2 sec to initialize, if you have some code before this that make a delay, you can eliminate this delay
 }
-// This wrapper is in charge of calling 
-// mus be defined like this for the lib work
-void dhtLib_wrapper() {
-  DHTLib.dht11Callback(); // Change dht11Callback() for a dht22Callback() if you have a DHT22 sensor
-}
+
 void loop()
 {
   Serial.print("\nRetrieving information from sensor: ");
