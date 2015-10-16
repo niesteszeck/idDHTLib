@@ -83,15 +83,18 @@ void idDHTLib::dht22Callback() {
   isrCallback(true);
 }
 void idDHTLib::isrCallback(bool dht22) {
-  int newUs = micros();
-  int delta = (newUs - us);
-  us = newUs;
-  if (delta > 6000) {
+  unsigned long newUs = micros();
+  byte delta;
+  if (newUs - us > 255) {
     status = IDDHTLIB_ERROR_TIMEOUT;
     state = STOPPED;
     detachInterrupt(intNumber);
     return;
   }
+
+  delta = newUs - us;
+  us = newUs;
+
   switch (state) {
     case RESPONSE:
       if (delta < 25) {
@@ -154,8 +157,20 @@ void idDHTLib::isrCallback(bool dht22) {
   }
 }
 bool idDHTLib::acquiring() {
-  if (state != ACQUIRED && state != STOPPED)
+  unsigned long oldUs, newUs;
+  if (state != ACQUIRED && state != STOPPED) {
+    cli();
+    oldUs = us;
+    newUs = micros();
+    sei();
+    if (newUs - oldUs > 255) {
+      status = IDDHTLIB_ERROR_TIMEOUT;
+      state = STOPPED;
+      detachInterrupt(intNumber);
+      return false;
+    }
     return true;
+  }
   return false;
 }
 int idDHTLib::getStatus() {
