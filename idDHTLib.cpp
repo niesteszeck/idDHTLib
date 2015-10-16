@@ -49,14 +49,14 @@ void idDHTLib::init(int pin, DHTType sensorType) {
   status = IDDHTLIB_ERROR_NOTSTARTED;
 }
 
-int idDHTLib::acquire() {
+int idDHTLib::startSignal(bool useDelay) {
   if (state == STOPPED || state == ACQUIRED) {
 
     //set the state machine for interruptions analisis of the signal
-    state = RESPONSE;
+    state = useDelay ? RESPONSE : START_SIGNAL;
 
     // EMPTY BUFFER and vars
-    for (int i = 0; i < 5; i++) bits[i] = 0;
+    for (byte i = 0; i < 5; i++) bits[i] = 0;
     cnt = 7;
     idx = 0;
     hum = 0;
@@ -65,19 +65,34 @@ int idDHTLib::acquire() {
     // REQUEST SAMPLE
     pinMode(pin, OUTPUT);
     digitalWrite(pin, LOW);
-    delay(18);
-    digitalWrite(pin, HIGH);
-    delayMicroseconds(25);
-    pinMode(pin, INPUT);
 
-    // Analize the data in an interrupt
+    if (useDelay) {
+      delay(18);
+      digitalWrite(pin, HIGH);
+      delayMicroseconds(25);
+      pinMode(pin, INPUT);
+    }
+
     us = micros();
-    attachInterrupt(intNumber, pCallbackArray[intNumber], FALLING);
+    // Analize the data in an interrupt
+    if (useDelay)
+      attachInterrupt(intNumber, pCallbackArray[intNumber], FALLING);
 
     return IDDHTLIB_ACQUIRING;
   } else
     return IDDHTLIB_ERROR_ACQUIRING;
 }
+
+int idDHTLib::acquire() {
+  return startSignal(true);
+}
+
+// start acquiring but don't do the start delay here, instead will be done
+// in the acquiring() function that has to be called in a loop with < 10ms delay 
+int idDHTLib::acquireFastLoop() {
+  return startSignal(false);
+}
+
 int idDHTLib::acquireAndWait() {
   acquire();
   while (acquiring())
@@ -138,7 +153,7 @@ void idDHTLib::dhtCallback() {
   }
 }
 bool idDHTLib::acquiring() {
-  unsigned long oldUs, newUs;
+  unsigned long delta;
   if (state != ACQUIRED && state != STOPPED) {
     if (state == RAW_DATA_READY) {
       // WRITE TO RIGHT VARS
@@ -165,14 +180,25 @@ bool idDHTLib::acquiring() {
       }
     } else {
       cli();
-      oldUs = us;
-      newUs = micros();
+      delta = micros() - us;
       sei();
-      if (newUs - oldUs > 255) {
-        status = IDDHTLIB_ERROR_TIMEOUT;
-        state = STOPPED;
-        detachInterrupt(intNumber);
-        return false;
+      if (state == START_SIGNAL) {
+        if (delta > 18000) {
+          state = RESPONSE;
+          digitalWrite(pin, HIGH);
+          delayMicroseconds(25);
+          pinMode(pin, INPUT);
+          us = micros();
+          // Analize the data in an interrupt
+          attachInterrupt(intNumber, pCallbackArray[intNumber], FALLING);
+        }
+      } else {
+        if (delta > 255) {
+          status = IDDHTLIB_ERROR_TIMEOUT;
+          state = STOPPED;
+          detachInterrupt(intNumber);
+          return false;
+        }
       }
       return true;
     }

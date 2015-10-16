@@ -62,6 +62,7 @@ class idDHTLib
     idDHTLib(int pin, DHTType sensorType);
     void init(int pin, DHTType sensorType);
     int acquire();
+    int acquireFastLoop();
     int acquireAndWait();
     float getCelsius();
     float getFahrenheit();
@@ -73,7 +74,7 @@ class idDHTLib
     int getStatus();
 
   private:
-    enum states {RESPONSE = 0, DATA = 1, ACQUIRED = 2, STOPPED = 3, ACQUIRING = 4, RAW_DATA_READY = 5};
+    enum states {RESPONSE = 0, DATA = 1, ACQUIRED = 2, STOPPED = 3, ACQUIRING = 4, RAW_DATA_READY = 5, START_SIGNAL = 6};
     volatile states state;
     volatile int status;
     volatile byte bits[5];
@@ -86,6 +87,7 @@ class idDHTLib
     volatile float hum;
     volatile float temp;
     void dhtCallback();
+    int startSignal(bool useDelay);
 
 #include "idDHTLib_cb.h"
     const static pCallback pCallbackArray[MAX_INTERRUPT + 1];
