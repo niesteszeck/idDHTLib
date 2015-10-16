@@ -119,28 +119,7 @@ void idDHTLib::dhtCallback() {
           cnt = 7;    // restart at MSB
           if (++idx == 5) { // go to next byte; when we have got 5 bytes, stop.
             detachInterrupt(intNumber);
-            // WRITE TO RIGHT VARS
-            uint8_t sum;
-            if (sensorType == DHT22) {
-              hum = word(bits[0], bits[1]) * 0.1;
-              temp = (bits[2] & 0x80 ?
-                      -word(bits[2] & 0x7F, bits[3]) :
-                      word(bits[2], bits[3]))
-                     * 0.1;
-              sum = bits[0] + bits[1] + bits[2] + bits[3];
-            } else {
-              hum    = bits[0];
-              // as bits[1] and bits[3] are always zero they are omitted in formulas.
-              temp = bits[2];
-              sum = bits[0] + bits[2];
-            }
-            if (bits[4] != (sum & 0xFF)) {
-              status = IDDHTLIB_ERROR_CHECKSUM;
-              state = STOPPED;
-            } else {
-              status = IDDHTLIB_OK;
-              state = ACQUIRED;
-            }
+            state = RAW_DATA_READY;
             break;
           }
         } else cnt--;
@@ -161,17 +140,42 @@ void idDHTLib::dhtCallback() {
 bool idDHTLib::acquiring() {
   unsigned long oldUs, newUs;
   if (state != ACQUIRED && state != STOPPED) {
-    cli();
-    oldUs = us;
-    newUs = micros();
-    sei();
-    if (newUs - oldUs > 255) {
-      status = IDDHTLIB_ERROR_TIMEOUT;
-      state = STOPPED;
-      detachInterrupt(intNumber);
-      return false;
+    if (state == RAW_DATA_READY) {
+      // WRITE TO RIGHT VARS
+      uint8_t sum;
+      if (sensorType == DHT22) {
+        hum = word(bits[0], bits[1]) * 0.1;
+        temp = (bits[2] & 0x80 ?
+                -word(bits[2] & 0x7F, bits[3]) :
+                word(bits[2], bits[3]))
+               * 0.1;
+        sum = bits[0] + bits[1] + bits[2] + bits[3];
+      } else {
+        hum    = bits[0];
+        // as bits[1] and bits[3] are always zero they are omitted in formulas.
+        temp = bits[2];
+        sum = bits[0] + bits[2];
+      }
+      if (bits[4] != (sum & 0xFF)) {
+        status = IDDHTLIB_ERROR_CHECKSUM;
+        state = STOPPED;
+      } else {
+        status = IDDHTLIB_OK;
+        state = ACQUIRED;
+      }
+    } else {
+      cli();
+      oldUs = us;
+      newUs = micros();
+      sei();
+      if (newUs - oldUs > 255) {
+        status = IDDHTLIB_ERROR_TIMEOUT;
+        state = STOPPED;
+        detachInterrupt(intNumber);
+        return false;
+      }
+      return true;
     }
-    return true;
   }
   return false;
 }

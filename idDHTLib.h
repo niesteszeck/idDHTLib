@@ -73,7 +73,7 @@ class idDHTLib
     int getStatus();
 
   private:
-    enum states {RESPONSE = 0, DATA = 1, ACQUIRED = 2, STOPPED = 3, ACQUIRING = 4};
+    enum states {RESPONSE = 0, DATA = 1, ACQUIRED = 2, STOPPED = 3, ACQUIRING = 4, RAW_DATA_READY = 5};
     volatile states state;
     volatile int status;
     volatile byte bits[5];
