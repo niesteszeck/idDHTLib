@@ -68,7 +68,6 @@ public:
 	float getHumidity();
 	bool acquiring();
 	int getStatus();
-	
 	int getRawTemperature();
 	int getRawHumidity();
 	
@@ -76,8 +75,7 @@ private:
 	
 	void (*isrCallback_wrapper)(void);
 	
-	bool isDHT22;
-	
+	volatile bool isDHT22;
 	enum states{RESPONSE=0,DATA=1,ACQUIRED=2,STOPPED=3,ACQUIRING=4};
 	volatile states state;
 	volatile int status;
