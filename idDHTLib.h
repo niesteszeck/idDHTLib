@@ -20,6 +20,10 @@
 		v 0.0.3
 			Timing correction to finally work properly on DHT22
 			(Dessimat0r from Arduino forum)
+			
+		v 0.0.4
+			* Improvements by sensestage to get rawData (usscefull for transmitting the data).
+			* Optimization by nsanz. Extract some calcs from interruption.
  */
 
 #ifndef idDHTLib_H__
