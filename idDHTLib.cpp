@@ -78,13 +78,13 @@ int idDHTLib::acquireAndWait() {
 }
 void idDHTLib::dht11Callback() {
 	isDHT22 = false;
-	isrCallback(false);
+	isrCallback();
 }
 void idDHTLib::dht22Callback() {
 	isDHT22 = true;
-	isrCallback(true);
+	isrCallback();
 }
-void idDHTLib::isrCallback(bool dht22) {
+void idDHTLib::isrCallback() {
 	int newUs = micros();
 	int delta = (newUs-us);
 	us = newUs;
@@ -116,20 +116,7 @@ void idDHTLib::isrCallback(bool dht22) {
 						cnt = 7;    // restart at MSB
 						if(++idx == 5) { // go to next byte; when we have got 5 bytes, stop.
 							detachInterrupt(intNumber);
-							// WRITE TO RIGHT VARS 
-							uint8_t sum;
-							if (dht22) {
-								hum = word(bits[0], bits[1]);
-								temp = (bits[2] & 0x80 ?
-									-word(bits[2] & 0x7F, bits[3]) :
-									word(bits[2], bits[3]));
-								sum = bits[0] + bits[1] + bits[2] + bits[3];
-							} else {
-								hum    = bits[0]; 
-								// as bits[1] and bits[3] are always zero they are omitted in formulas.
-								temp = bits[2];
-								sum = bits[0] + bits[2];
-							}  
+							uint8_t sum = bits[0] + bits[1] + bits[2] + bits[3];
 							if (bits[4] != (sum&0xFF)) {
 								status = IDDHTLIB_ERROR_CHECKSUM;
 								state = STOPPED;
@@ -211,6 +198,20 @@ float idDHTLib::getKelvin() {
 	  tempF = (float) temp;
 	}
 	return tempF + 273.15;
+}
+
+void updateValues(){
+	// WRITE TO RIGHT VARS
+	if (isDHT22) {
+		hum = word(bits[0], bits[1]);
+		temp = (bits[2] & 0x80 ?
+			-word(bits[2] & 0x7F, bits[3]) :
+			word(bits[2], bits[3]));
+	} else {
+	  // as bits[1] and bits[3] are always zero they are omitted in formulas.
+		hum    = bits[0];
+		temp = bits[2];
+	}
 }
 
 // delta max = 0.6544 wrt dewPoint()

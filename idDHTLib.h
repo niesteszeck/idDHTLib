@@ -49,7 +49,8 @@
 #define IDDHTLIB_CHECK_STATE		if(state == STOPPED)			\
 						return status;			\
 					else if(state != ACQUIRED)		\
-						return IDDHTLIB_ERROR_ACQUIRING;
+						return IDDHTLIB_ERROR_ACQUIRING;		\
+					updateValues();
 									
 class idDHTLib
 {
@@ -63,6 +64,7 @@ public:
 	float getCelsius();
 	float getFahrenheit();
 	float getKelvin();
+	void updateValues();
 	double getDewPoint();
 	double getDewPointSlow();
 	float getHumidity();
