@@ -10,16 +10,24 @@
 	Based on DHTLib library: http://playground.arduino.cc/Main/DHTLib
 	Based on code proposed: http://forum.arduino.cc/index.php?PHPSESSID=j6n105kl2h07nbj72ac4vbh4s5&topic=175356.0
 
-	Changelog:
-		v 0.0.1
-			fork from idDHT11 lib
-			change names to idDHTLib
-			added DHT22 functionality
-		v 0.0.2
-			Optimization on shift var (pylon from Arduino Forum)
-		v 0.0.3
-			Timing correction to finally work properly on DHT22
-			(Dessimat0r from Arduino forum)
+  Changelog:
+    v 0.0.1
+      fork from idDHT11 lib
+      change names to idDHTLib
+      added DHT22 functionality
+    v 0.0.2
+      Optimization on shift var (pylon from Arduino Forum)
+    v 0.0.3
+      Timing correction to finally work properly on DHT22
+      (Dessimat0r from Arduino forum)
+    v 1.0.0
+      autoformat code with Arduino IDE code formatting standards (kcsoft)
+      remove the interrupt number from the constructor by using digitalPinToInterrupt (kcsoft)
+      fix type for us and timeout when no interrupt is triggered (kcsoft)
+      removed the callback parameter from the constructor, added sensor type (DHT11, DHT22) as optional param (kcsoft)
+      removed temp/humid calculation from the isr (kcsoft)
+      new function acquireFastLoop to remove delay when start acquiring (kcsoft)
+      update README.md file (kcsoft)
  */
 
 #ifndef idDHTLib_H__
@@ -31,7 +39,7 @@
 #include <WProgram.h>
 #endif
 
-#define IDDHTLIB_VERSION "0.0.3"
+#define IDDHTLIB_VERSION "1.0.0"
 
 // state codes
 #define IDDHTLIB_OK			0

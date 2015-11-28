@@ -20,6 +20,14 @@
 		v 0.0.3
 			Timing correction to finally work properly on DHT22
 			(Dessimat0r from Arduino forum)
+    v 1.0.0
+      autoformat code with Arduino IDE code formatting standards (kcsoft)
+      remove the interrupt number from the constructor by using digitalPinToInterrupt (kcsoft)
+      fix type for us and timeout when no interrupt is triggered (kcsoft)
+      removed the callback parameter from the constructor, added sensor type (DHT11, DHT22) as optional param (kcsoft)
+      removed temp/humid calculation from the isr (kcsoft)
+      new function acquireFastLoop to remove delay when start acquiring (kcsoft)
+      update README.md file (kcsoft)
  */
 
 #include "idDHTLib.h"
